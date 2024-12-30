@@ -10,6 +10,9 @@ git clone git@github.com:Sailzf/Mytorch.git
 ```
 
 2. 安装依赖：
+```bash
+python setup.py install
+
 swanlab：
 看这个链接的1、2步：https://docs.swanlab.cn/guide_cloud/general/quick-start.htm
 
