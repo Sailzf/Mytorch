@@ -21,7 +21,7 @@ conda install xxx
 
 ## 使用方法（MNIST 数字分类，LeNet实现）
 ```bash
-cd cases
+cd cases/mnist
 ```
 
 1. MyTorch,CPU
@@ -34,18 +34,20 @@ python mnist_lenet.py
 python mnist_lenet_cupy.py
 ```
 
+3. PyTorch, GPU
+```bash
+python mnist_lenet_torch.py
+```
 
-3. MyTorch,GPU,WEB
+4. MyTorch,GPU,WEB
 **傻瓜式网络训练**
 ![alt text](image.png)
 ```bash
-python cases/mnist_lenet_web.py
+cd cases/web
+python mnist_lenet_web.py
 ```
 然后打开http://127.0.0.1:5000/，点击“开始训练”按钮，即可开始训练。
 
-4. PyTorch, GPU
-```bash
-python cases/mnist_lenet_torch.py
-```
+
 
 
