@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MNIST LeNet 训练控制面板</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+        .start {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .stop {
+            background-color: #f44336;
+            color: white;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .status-item {
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .status-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .status-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2196F3;
+        }
+        .accuracy-value {
+            color: #4CAF50;
+        }
+        .loss-value {
+            color: #f44336;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+        }
+        .params-panel {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .param-group {
+            margin: 10px 0;
+        }
+        .param-group label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+        input[type="number"], select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 150px;
+        }
+        .save-params {
+            background-color: #2196F3;
+            color: white;
+        }
+        .network-structure {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .network-structure img {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            color: #333;
+            border-bottom: 2px solid #2196F3;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .params-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .params-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        .warning {
+            color: #f44336;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .chat-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+            margin-right: 5px;
+        }
+        .ai-message {
+            background-color: #f5f5f5;
+            margin-right: 20%;
+            margin-left: 5px;
+        }
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .chat-input button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .message-time {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .preset-questions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .preset-questions button {
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .preset-questions button:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MNIST LeNet 训练控制面板</h1>
+        
+        <div class="network-structure">
+            <h3 class="section-title">网络结构</h3>
+            <img src="/network_structure" alt="LeNet Network Structure" id="networkStructureImg"
+                 title="点击查看大图" onclick="window.open(this.src)" style="cursor: pointer;">
+        </div>
+
+        <div class="params-container">
+            <div class="params-section">
+                <div class="params-panel">
+                    <h3 class="section-title">网络结构参数</h3>
+                    <div class="param-group">
+                        <label for="conv1_out_channels">Conv1输出通道数:</label>
+                        <input type="number" id="conv1_out_channels" value="6" min="1" max="64">
+                    </div>
+                    <div class="param-group">
+                        <label for="conv1_kernel_size">Conv1卷积核大小:</label>
+                        <input type="number" id="conv1_kernel_size" value="5" min="1" max="7">
+                    </div>
+                    <div class="param-group">
+                        <label for="conv2_out_channels">Conv2输出通道数:</label>
+                        <input type="number" id="conv2_out_channels" value="16" min="1" max="128">
+                    </div>
+                    <div class="param-group">
+                        <label for="conv2_kernel_size">Conv2卷积核大小:</label>
+                        <input type="number" id="conv2_kernel_size" value="5" min="1" max="7">
+                    </div>
+                    <div class="param-group">
+                        <label for="fc1_out_features">FC1输出维度:</label>
+                        <input type="number" id="fc1_out_features" value="120" min="32" max="512">
+                    </div>
+                    <div class="param-group">
+                        <label for="fc2_out_features">FC2输出维度:</label>
+                        <input type="number" id="fc2_out_features" value="84" min="32" max="256">
+                    </div>
+                    <div class="param-group">
+                        <label for="pool_size">池化核大小:</label>
+                        <input type="number" id="pool_size" value="2" min="2" max="4">
+                    </div>
+                    <div class="param-group">
+                        <label for="pool_stride">池化步长:</label>
+                        <input type="number" id="pool_stride" value="2" min="1" max="4">
+                    </div>
+                    <button id="saveNetworkParamsBtn" class="button save-params">更新网络结构</button>
+                    <p class="warning">注意：更新网络结构会重置模型参数！</p>
+                </div>
+            </div>
+
+            <div class="params-section">
+                <div class="params-panel">
+                    <h3 class="section-title">训练参数设置</h3>
+                    <div class="param-group">
+                        <label for="learning_rate">学习率:</label>
+                        <input type="number" id="learning_rate" value="0.01" step="0.001" min="0.0001" max="1">
+                    </div>
+                    <div class="param-group">
+                        <label for="batch_size">Batch Size:</label>
+                        <input type="number" id="batch_size" value="64" step="1" min="1" max="512">
+                    </div>
+                    <div class="param-group">
+                        <label for="epochs">训练轮数:</label>
+                        <input type="number" id="epochs" value="10" step="1" min="1" max="100">
+                    </div>
+                    <div class="param-group">
+                        <label for="optimizer">优化器:</label>
+                        <select id="optimizer">
+                            <option value="Adam">Adam</option>
+                            <option value="SGD">SGD</option>
+                            <option value="Adagrad">Adagrad</option>
+                        </select>
+                    </div>
+                    <div class="param-group">
+                        <label for="log_interval">日志输出间隔:</label>
+                        <input type="number" id="log_interval" value="10" step="1" min="1" max="100" 
+                               title="每多少个batch输出一次训练日志">
+                    </div>
+                    <button id="saveParamsBtn" class="button save-params">保存训练参数</button>
+                </div>
+
+                <div class="status">
+                    <h3 class="section-title">训练状态</h3>
+                    <p>当前状态: <span id="trainingStatus">未开始</span></p>
+                    <div class="progress-bar">
+                        <div id="progressBar" class="progress"></div>
+                    </div>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-label">当前轮次</div>
+                            <div class="status-value">
+                                <span id="currentEpoch">0</span> / <span id="totalEpochs">0</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">当前批次</div>
+                            <div class="status-value">
+                                <span id="currentBatch">0</span> / <span id="totalBatches">0</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">已处理样本数</div>
+                            <div class="status-value" id="samplesProcessed">0</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">训练速度</div>
+                            <div class="status-value">
+                                <span id="trainingSpeed">0</span> 样本/秒
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">最新准确率</div>
+                            <div class="status-value accuracy-value" id="latestAccuracy">0%</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">最新损失值</div>
+                            <div class="status-value loss-value" id="latestLoss">0.0000</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">已运行时间</div>
+                            <div class="status-value" id="elapsedTime">0.0 秒</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button id="startBtn" class="button start">开始训练</button>
+                    <button id="stopBtn" class="button stop">停止训练</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="logs"></div>
+
+        <div class="chat-container">
+            <h3 class="section-title">AI助手</h3>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai-message">
+                    你好！我是AI助手，我可以帮你分析模型训练情况，提供优化建议。请随时向我提问！
+                    <div class="message-time">系统消息</div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="输入你的问题..." onkeypress="if(event.keyCode==13) sendMessage()">
+                <button onclick="sendMessage()" id="sendButton">发送</button>
+            </div>
+            <div class="preset-questions">
+                <button onclick="setPresetQuestion('当前的训练效果如何？')">当前的训练效果如何？</button>
+                <button onclick="setPresetQuestion('学习率是否需要调整？')">学习率是否需要调整？</button>
+                <button onclick="setPresetQuestion('网络结构有什么可以优化的地方？')">网络结构有什么可以优化的地方？</button>
+                <button onclick="setPresetQuestion('为什么准确率增长变慢了？')">为什么准确率增长变慢了？</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateStatus() {
+            fetch('/get_status')
+                .then(response => response.json())
+                .then(data => {
+                    const status = data.is_training ? '训练中' : '已停止';
+                    document.getElementById('trainingStatus').textContent = status;
+                    document.getElementById('currentEpoch').textContent = data.current_epoch;
+                    document.getElementById('totalEpochs').textContent = data.total_epochs;
+                    document.getElementById('currentBatch').textContent = data.current_batch;
+                    document.getElementById('totalBatches').textContent = Math.ceil(60000 / data.batch_size); // MNIST训练集大小
+                    document.getElementById('samplesProcessed').textContent = data.samples_processed;
+                    document.getElementById('trainingSpeed').textContent = data.training_speed;
+                    document.getElementById('latestAccuracy').textContent = data.latest_accuracy;
+                    document.getElementById('latestLoss').textContent = data.latest_loss;
+                    document.getElementById('elapsedTime').textContent = data.elapsed_time + ' 秒';
+                    
+                    // 更新进度条
+                    const progress = (data.current_epoch / data.total_epochs) * 100;
+                    document.getElementById('progressBar').style.width = `${progress}%`;
+                });
+        }
+
+        // 保存网络结构参数
+        document.getElementById('saveNetworkParamsBtn').addEventListener('click', () => {
+            const params = {
+                conv1_out_channels: parseInt(document.getElementById('conv1_out_channels').value),
+                conv1_kernel_size: parseInt(document.getElementById('conv1_kernel_size').value),
+                conv2_out_channels: parseInt(document.getElementById('conv2_out_channels').value),
+                conv2_kernel_size: parseInt(document.getElementById('conv2_kernel_size').value),
+                fc1_out_features: parseInt(document.getElementById('fc1_out_features').value),
+                fc2_out_features: parseInt(document.getElementById('fc2_out_features').value),
+                pool_size: parseInt(document.getElementById('pool_size').value),
+                pool_stride: parseInt(document.getElementById('pool_stride').value)
+            };
+
+            fetch('/update_network_params', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(params)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === 'success') {
+                    // 刷新网络结构图
+                    const img = document.getElementById('networkStructureImg');
+                    img.src = '/network_structure?' + new Date().getTime();
+                }
+            });
+        });
+
+        // 保存训练参数
+        document.getElementById('saveParamsBtn').addEventListener('click', () => {
+            const params = {
+                learning_rate: parseFloat(document.getElementById('learning_rate').value),
+                batch_size: parseInt(document.getElementById('batch_size').value),
+                epochs: parseInt(document.getElementById('epochs').value),
+                optimizer: document.getElementById('optimizer').value,
+                log_interval: parseInt(document.getElementById('log_interval').value)
+            };
+
+            fetch('/update_params', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(params)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+        });
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+            fetch('/start_training')
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    updateStatus();
+                });
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            fetch('/stop_training')
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    updateStatus();
+                });
+        });
+
+        // 每秒更新状态
+        setInterval(updateStatus, 1000);
+
+        // 页面加载时获取当前参数
+        Promise.all([
+            fetch('/get_params').then(response => response.json()),
+            fetch('/get_network_params').then(response => response.json())
+        ]).then(([trainParams, networkParams]) => {
+            // 设置训练参数
+            document.getElementById('learning_rate').value = trainParams.learning_rate;
+            document.getElementById('batch_size').value = trainParams.batch_size;
+            document.getElementById('epochs').value = trainParams.epochs;
+            document.getElementById('optimizer').value = trainParams.optimizer;
+            document.getElementById('log_interval').value = trainParams.log_interval;
+
+            // 设置网络参数
+            document.getElementById('conv1_out_channels').value = networkParams.conv1_out_channels;
+            document.getElementById('conv1_kernel_size').value = networkParams.conv1_kernel_size;
+            document.getElementById('conv2_out_channels').value = networkParams.conv2_out_channels;
+            document.getElementById('conv2_kernel_size').value = networkParams.conv2_kernel_size;
+            document.getElementById('fc1_out_features').value = networkParams.fc1_out_features;
+            document.getElementById('fc2_out_features').value = networkParams.fc2_out_features;
+            document.getElementById('pool_size').value = networkParams.pool_size;
+            document.getElementById('pool_stride').value = networkParams.pool_stride;
+        });
+
+        // 发送消息函数
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // 禁用输入和发送按钮
+            input.disabled = true;
+            document.getElementById('sendButton').disabled = true;
+            
+            // 添加用户消息
+            addMessage(message, 'user');
+            
+            // 清空输入框
+            input.value = '';
+            
+            // 发送到服务器
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    addMessage(data.response, 'ai');
+                } else {
+                    addMessage('抱歉，出现了一些问题：' + data.message, 'ai');
+                }
+            })
+            .catch(error => {
+                addMessage('抱歉，请求失败：' + error.message, 'ai');
+            })
+            .finally(() => {
+                // 重新启用输入和发送按钮
+                input.disabled = false;
+                document.getElementById('sendButton').disabled = false;
+                input.focus();
+            });
+        }
+        
+        // 添加消息到聊天窗口
+        function addMessage(message, type) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            
+            const messageContent = document.createElement('div');
+            messageContent.textContent = message;
+            messageDiv.appendChild(messageContent);
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            timeDiv.textContent = new Date().toLocaleTimeString();
+            messageDiv.appendChild(timeDiv);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // 在Enter键按下时发送消息
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // 设置预设问题
+        function setPresetQuestion(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+    </script>
+</body>
+</html> 

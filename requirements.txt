@@ -1,0 +1,13 @@
+# torch>=1.9.0
+# torchvision>=0.10.0
+# numpy>=1.19.2
+# swanlab>=0.1.0
+# nvtx>=0.2.5
+# tqdm>=4.65.0
+# matplotlib>=3.5.0
+# pillow>=8.0.0 
+# flask>=2.0.0
+# openai>=1.0.0
+# graphviz>=0.20.0
+# cupy>=10.0.0
+# cupy-cuda11x>=10.0.0
