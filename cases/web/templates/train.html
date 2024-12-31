@@ -1,169 +1,270 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MNIST LeNet 训练控制面板</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+  </head>
+  <body>
     <div class="container">
-        <nav class="nav">
-            <h1>MNIST LeNet 训练控制面板</h1>
-            <a href="http://127.0.0.1:5092" class="nav-link">可视化图表</a>
-        </nav>
-        
-        <div class="network-structure">
-            <h3 class="section-title">网络结构</h3>
-            <img src="../static/network_structure.png" alt="LeNet Network Structure" id="networkStructureImg"
-                 title="点击查看大图" onclick="window.open(this.src)" style="cursor: pointer;">
+      <nav class="nav">
+        <h1>MNIST LeNet 训练控制面板</h1>
+        <a href="http://127.0.0.1:5092" class="nav-link">可视化图表</a>
+      </nav>
+
+      <div class="network-structure">
+        <h3 class="section-title">网络结构</h3>
+        <img
+          src="../static/network_structure.png"
+          alt="LeNet Network Structure"
+          id="networkStructureImg"
+          title="点击查看大图"
+          onclick="window.open(this.src)"
+          style="cursor: pointer"
+        />
+      </div>
+
+      <div class="params-container">
+        <div class="params-section">
+          <div class="params-panel">
+            <h3 class="section-title">网络结构参数</h3>
+            <div class="param-grid">
+              <div class="param-group">
+                <label for="conv1_out_channels">Conv1输出通道数:</label>
+                <input
+                  type="number"
+                  id="conv1_out_channels"
+                  value="6"
+                  min="1"
+                  max="64"
+                />
+              </div>
+              <div class="param-group">
+                <label for="conv1_kernel_size">Conv1卷积核大小:</label>
+                <input
+                  type="number"
+                  id="conv1_kernel_size"
+                  value="5"
+                  min="1"
+                  max="7"
+                />
+              </div>
+              <div class="param-group">
+                <label for="conv2_out_channels">Conv2输出通道数:</label>
+                <input
+                  type="number"
+                  id="conv2_out_channels"
+                  value="16"
+                  min="1"
+                  max="128"
+                />
+              </div>
+              <div class="param-group">
+                <label for="conv2_kernel_size">Conv2卷积核大小:</label>
+                <input
+                  type="number"
+                  id="conv2_kernel_size"
+                  value="5"
+                  min="1"
+                  max="7"
+                />
+              </div>
+              <div class="param-group">
+                <label for="fc1_out_features">FC1输出维度:</label>
+                <input
+                  type="number"
+                  id="fc1_out_features"
+                  value="120"
+                  min="32"
+                  max="512"
+                />
+              </div>
+              <div class="param-group">
+                <label for="fc2_out_features">FC2输出维度:</label>
+                <input
+                  type="number"
+                  id="fc2_out_features"
+                  value="84"
+                  min="32"
+                  max="256"
+                />
+              </div>
+              <div class="param-group">
+                <label for="pool_size">池化核大小:</label>
+                <input type="number" id="pool_size" value="2" min="2" max="4" />
+              </div>
+              <div class="param-group">
+                <label for="pool_stride">池化步长:</label>
+                <input
+                  type="number"
+                  id="pool_stride"
+                  value="2"
+                  min="1"
+                  max="4"
+                />
+              </div>
+            </div>
+            <button id="saveNetworkParamsBtn" class="button save-params">
+              更新网络结构
+            </button>
+            <p class="warning">注意：更新网络结构会重置模型参数！</p>
+          </div>
         </div>
 
-        <div class="params-container">
-            <div class="params-section">
-                <div class="params-panel">
-                    <h3 class="section-title">网络结构参数</h3>
-                    <div class="param-group">
-                        <label for="conv1_out_channels">Conv1输出通道数:</label>
-                        <input type="number" id="conv1_out_channels" value="6" min="1" max="64">
-                    </div>
-                    <div class="param-group">
-                        <label for="conv1_kernel_size">Conv1卷积核大小:</label>
-                        <input type="number" id="conv1_kernel_size" value="5" min="1" max="7">
-                    </div>
-                    <div class="param-group">
-                        <label for="conv2_out_channels">Conv2输出通道数:</label>
-                        <input type="number" id="conv2_out_channels" value="16" min="1" max="128">
-                    </div>
-                    <div class="param-group">
-                        <label for="conv2_kernel_size">Conv2卷积核大小:</label>
-                        <input type="number" id="conv2_kernel_size" value="5" min="1" max="7">
-                    </div>
-                    <div class="param-group">
-                        <label for="fc1_out_features">FC1输出维度:</label>
-                        <input type="number" id="fc1_out_features" value="120" min="32" max="512">
-                    </div>
-                    <div class="param-group">
-                        <label for="fc2_out_features">FC2输出维度:</label>
-                        <input type="number" id="fc2_out_features" value="84" min="32" max="256">
-                    </div>
-                    <div class="param-group">
-                        <label for="pool_size">池化核大小:</label>
-                        <input type="number" id="pool_size" value="2" min="2" max="4">
-                    </div>
-                    <div class="param-group">
-                        <label for="pool_stride">池化步长:</label>
-                        <input type="number" id="pool_stride" value="2" min="1" max="4">
-                    </div>
-                    <button id="saveNetworkParamsBtn" class="button save-params">更新网络结构</button>
-                    <p class="warning">注意：更新网络结构会重置模型参数！</p>
-                </div>
+        <div class="params-section">
+          <div class="params-panel training-params">
+            <h3 class="section-title">训练参数设置</h3>
+            <div class="param-group">
+              <label for="learning_rate">学习率:</label>
+              <input
+                type="number"
+                id="learning_rate"
+                value="0.01"
+                step="0.001"
+                min="0.0001"
+                max="1"
+              />
             </div>
-
-            <div class="params-section">
-                <div class="params-panel">
-                    <h3 class="section-title">训练参数设置</h3>
-                    <div class="param-group">
-                        <label for="learning_rate">学习率:</label>
-                        <input type="number" id="learning_rate" value="0.01" step="0.001" min="0.0001" max="1">
-                    </div>
-                    <div class="param-group">
-                        <label for="batch_size">Batch Size:</label>
-                        <input type="number" id="batch_size" value="64" step="1" min="1" max="512">
-                    </div>
-                    <div class="param-group">
-                        <label for="epochs">训练轮数:</label>
-                        <input type="number" id="epochs" value="10" step="1" min="1" max="100">
-                    </div>
-                    <div class="param-group">
-                        <label for="optimizer">优化器:</label>
-                        <select id="optimizer">
-                            <option value="Adam">Adam</option>
-                            <option value="SGD">SGD</option>
-                            <option value="Adagrad">Adagrad</option>
-                        </select>
-                    </div>
-                    <div class="param-group">
-                        <label for="log_interval">日志输出间隔:</label>
-                        <input type="number" id="log_interval" value="10" step="1" min="1" max="100" 
-                               title="每多少个batch输出一次训练日志">
-                    </div>
-                    <button id="saveParamsBtn" class="button save-params">保存训练参数</button>
-                </div>
-
-                <div class="status">
-                    <h3 class="section-title">训练状态</h3>
-                    <p>当前状态: <span id="trainingStatus">未开始</span></p>
-                    <div class="progress-bar">
-                        <div id="progressBar" class="progress"></div>
-                    </div>
-                    <div class="status-grid">
-                        <div class="status-item">
-                            <div class="status-label">当前轮次</div>
-                            <div class="status-value">
-                                <span id="currentEpoch">0</span> / <span id="totalEpochs">0</span>
-                            </div>
-                        </div>
-                        <div class="status-item">
-                            <div class="status-label">当前批次</div>
-                            <div class="status-value">
-                                <span id="currentBatch">0</span> / <span id="totalBatches">0</span>
-                            </div>
-                        </div>
-                        <div class="status-item">
-                            <div class="status-label">已处理样本数</div>
-                            <div class="status-value" id="samplesProcessed">0</div>
-                        </div>
-                        <div class="status-item">
-                            <div class="status-label">训练速度</div>
-                            <div class="status-value">
-                                <span id="trainingSpeed">0</span> 样本/秒
-                            </div>
-                        </div>
-                        <div class="status-item">
-                            <div class="status-label">最新准确率</div>
-                            <div class="status-value accuracy-value" id="latestAccuracy">0%</div>
-                        </div>
-                        <div class="status-item">
-                            <div class="status-label">最新损失值</div>
-                            <div class="status-value loss-value" id="latestLoss">0.0000</div>
-                        </div>
-                        <div class="status-item">
-                            <div class="status-label">已运行时间</div>
-                            <div class="status-value" id="elapsedTime">0.0 秒</div>
-                        </div>
-                    </div>
-                    <div class="status-controls">
-                        <button id="startBtn" class="button start">开始训练</button>
-                        <button id="stopBtn" class="button stop">停止训练</button>
-                    </div>
-                </div>
+            <div class="param-group">
+              <label for="batch_size">Batch Size:</label>
+              <input
+                type="number"
+                id="batch_size"
+                value="64"
+                step="1"
+                min="1"
+                max="512"
+              />
             </div>
+            <div class="param-group">
+              <label for="epochs">训练轮数:</label>
+              <input
+                type="number"
+                id="epochs"
+                value="10"
+                step="1"
+                min="1"
+                max="100"
+              />
+            </div>
+            <div class="param-group">
+              <label for="optimizer">优化器:</label>
+              <select id="optimizer">
+                <option value="Adam">Adam</option>
+                <option value="SGD">SGD</option>
+                <option value="Adagrad">Adagrad</option>
+              </select>
+            </div>
+            <div class="param-group">
+              <label for="log_interval">日志输出间隔:</label>
+              <input
+                type="number"
+                id="log_interval"
+                value="10"
+                step="1"
+                min="1"
+                max="100"
+                title="每多少个batch输出一次训练日志"
+              />
+            </div>
+            <button id="saveParamsBtn" class="button save-params">
+              保存训练参数
+            </button>
+          </div>
         </div>
 
-        <div id="logs"></div>
-
-        <div class="chat-container">
-            <h3 class="section-title">AI助手</h3>
-            <div class="chat-messages" id="chatMessages">
-                <div class="message ai-message">
-                    你好！我是AI助手，我可以帮你分析模型训练情况，提供优化建议。请随时向我提问！
-                    <div class="message-time">系统消息</div>
-                </div>
+        <div class="status">
+          <h3 class="section-title">训练状态</h3>
+          <p>当前状态: <span id="trainingStatus">未开始</span></p>
+          <div class="progress-bar">
+            <div id="progressBar" class="progress"></div>
+          </div>
+          <div class="status-grid">
+            <div class="status-item">
+              <div class="status-label">当前轮次</div>
+              <div class="status-value">
+                <span id="currentEpoch">0</span> /
+                <span id="totalEpochs">0</span>
+              </div>
             </div>
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="输入你的问题..." onkeypress="if(event.keyCode==13) sendMessage()">
-                <button onclick="sendMessage()" id="sendButton">发送</button>
+            <div class="status-item">
+              <div class="status-label">当前批次</div>
+              <div class="status-value">
+                <span id="currentBatch">0</span> /
+                <span id="totalBatches">0</span>
+              </div>
             </div>
-            <div class="preset-questions">
-                <button onclick="setPresetQuestion('当前的训练效果如何？')">当前的训练效果如何？</button>
-                <button onclick="setPresetQuestion('学习率是否需要调整？')">学习率是否需要调整？</button>
-                <button onclick="setPresetQuestion('网络结构有什么可以优化的地方？')">网络结构有什么可以优化的地方？</button>
-                <button onclick="setPresetQuestion('为什么准确率增长变慢了？')">为什么准确率增长变慢了？</button>
+            <div class="status-item">
+              <div class="status-label">已处理样本数</div>
+              <div class="status-value" id="samplesProcessed">0</div>
             </div>
+            <div class="status-item">
+              <div class="status-label">训练速度</div>
+              <div class="status-value">
+                <span id="trainingSpeed">0</span> 样本/秒
+              </div>
+            </div>
+            <div class="status-item">
+              <div class="status-label">最新准确率</div>
+              <div class="status-value accuracy-value" id="latestAccuracy">
+                0%
+              </div>
+            </div>
+            <div class="status-item">
+              <div class="status-label">最新损失值</div>
+              <div class="status-value loss-value" id="latestLoss">0.0000</div>
+            </div>
+            <div class="status-item">
+              <div class="status-label">已运行时间</div>
+              <div class="status-value" id="elapsedTime">0.0 秒</div>
+            </div>
+          </div>
+          <div class="status-controls">
+            <button id="startBtn" class="button start">开始训练</button>
+            <button id="stopBtn" class="button stop">停止训练</button>
+          </div>
         </div>
+      </div>
+
+      <div id="logs"></div>
+
+      <div class="chat-container">
+        <h3 class="section-title">AI助手</h3>
+        <div class="chat-messages" id="chatMessages">
+          <div class="message ai-message">
+            你好！我是AI助手，我可以帮你分析模型训练情况，提供优化建议。请随时向我提问！
+            <div class="message-time">系统消息</div>
+          </div>
+        </div>
+        <div class="chat-input">
+          <input
+            type="text"
+            id="chatInput"
+            placeholder="输入你的问题..."
+            onkeypress="if(event.keyCode==13) sendMessage()"
+          />
+          <button onclick="sendMessage()" id="sendButton">发送</button>
+        </div>
+        <div class="preset-questions">
+          <button onclick="setPresetQuestion('当前的训练效果如何？')">
+            当前的训练效果如何？
+          </button>
+          <button onclick="setPresetQuestion('学习率是否需要调整？')">
+            学习率是否需要调整？
+          </button>
+          <button onclick="setPresetQuestion('网络结构有什么可以优化的地方？')">
+            网络结构有什么可以优化的地方？
+          </button>
+          <button onclick="setPresetQuestion('为什么准确率增长变慢了？')">
+            为什么准确率增长变慢了？
+          </button>
+        </div>
+      </div>
     </div>
-
-    <script src="script.js"></script>
-</body>
-</html> 
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
