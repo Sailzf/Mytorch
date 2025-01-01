@@ -23,7 +23,9 @@ from mytorch import cuda
 
 # 初始化 SwanLab
 run = swanlab.init(
-    project="MNIST-LeNet-1230",
+    logdir='./logs',
+    mode="local",
+    project="MNIST-LeNet",
     experiment_name="MNIST-LeNet-Web",
     config={
         "optimizer": "Adam",
