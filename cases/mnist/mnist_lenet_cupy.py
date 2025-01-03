@@ -6,7 +6,6 @@ import swanlab
 
 from mytorch.ops import Max as mymax
 from mytorch.tensor import Tensor, no_grad
-from mytorch.dataset import MNISTDataset
 from mytorch.dataloader import DataLoader, prepare_mnist_data
 import mytorch.module as nn
 from mytorch.module import Module, Linear, Conv2D, MaxPooling2D
@@ -35,6 +34,7 @@ data_dir = os.path.join(root_dir, 'data')
 
 # 加载和准备数据
 train_dataset = prepare_mnist_data(root=data_dir, backend='cupy', train=True)
+print("Initial data type:", type(train_dataset.data))
 test_dataset = prepare_mnist_data(root=data_dir, backend='cupy', train=False)
 
 train_loader = DataLoader(train_dataset, batch_size=run.config.batch_size, shuffle=True)
@@ -108,7 +108,8 @@ def train(epoch):
             
             # 计算准确率
             predicted = mymax().forward(outputs.data, axis=1)
-            predicted = cp.round(predicted)
+            #predicted = cp.round(predicted)
+            predicted = cp.rint(predicted)
             correct = (predicted == target.array()).sum().item()
             accuracy = 100 * correct / target.array().size
             
@@ -140,7 +141,8 @@ def test(epoch):
             outputs = model(inputs)
             loss = criterion(outputs, labels)
             predicted = mymax().forward(outputs.data, axis=1)
-            predicted = cp.round(predicted)
+            #predicted = cp.round(predicted)
+            predicted = cp.rint(predicted)
             
             total_loss += loss.item()
             total += labels.array().size

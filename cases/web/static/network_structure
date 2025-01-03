@@ -1,0 +1,35 @@
+// LeNet Architecture
+digraph {
+	rankdir=LR
+	node [fillcolor=lightblue style=filled]
+	input [label="Input
+1x28x28" fillcolor=lightgreen shape=box]
+	conv1 [label="Conv1
+6@24x24
+5x5 kernel" shape=box]
+	pool1 [label="Pool1
+6@12x12
+2x2 kernel" fillcolor=lightyellow shape=box]
+	conv2 [label="Conv2
+16@8x8
+5x5 kernel" shape=box]
+	pool2 [label="Pool2
+16@4x4
+2x2 kernel" fillcolor=lightyellow shape=box]
+	fc1 [label="FC1
+256→120" fillcolor=lightpink shape=box]
+	fc2 [label="FC2
+120→84" fillcolor=lightpink shape=box]
+	fc3 [label="FC3
+84→10" fillcolor=lightpink shape=box]
+	output [label="Output
+10" fillcolor=lightgreen shape=box]
+	input -> conv1 [label=Conv]
+	conv1 -> pool1 [label=MaxPool]
+	pool1 -> conv2 [label=Conv]
+	conv2 -> pool2 [label=MaxPool]
+	pool2 -> fc1 [label="Flatten+FC"]
+	fc1 -> fc2 [label=FC]
+	fc2 -> fc3 [label=FC]
+	fc3 -> output [label=LogSoftmax]
+}
